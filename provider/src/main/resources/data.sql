@@ -1,0 +1,8 @@
+DROP TABLE IF EXISTS provider;
+
+CREATE TABLE provider(
+  id INT AUTO_INCREMENT  PRIMARY KEY,
+  prov_id VARCHAR(250)	NOT NULL,
+  prov_first_nm VARCHAR(250) NOT NULL,
+  prov_last_name VARCHAR(250) NOT NULL
+);
