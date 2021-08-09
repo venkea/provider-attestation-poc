@@ -8,6 +8,8 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
@@ -34,11 +36,16 @@ public class ProviderAttestationConfig {
 	public StepBuilderFactory stepBuilderFactory;
 	
 	@Autowired
+	public DataSource dataSource;
+	
+	@Autowired
 	public JobCompletionNotificationListner jobCompletionNotificationListner;
 
-	private static final String QUERY_INSERT_STUDENT = "INSERT " +
-            "INTO provider(prov_id, prov_first_nm, prov_last_name) " +
-            "VALUES (:providerId, :providerFirstName, :providerLastName)";
+	private static final String QUERY_INSERT_PROVIDER = "INSERT " +
+            "INTO provider(provider_id,provider_type, provider_first_name, provider_last_name,tax_id,"
+            + "npi,ssn,licence_expiry_date,address_line_1,state,zip_code,provider_specialty_code) " +
+            "VALUES (:providerId,:provType, :providerFirstName, :providerLastName,:taxId,"
+            + ":npi,:ssn,:licenseExpiryDate,:addressLine1,:state,:zipCode,:providerSpecialityCode)";
 	
 	@Bean
     public FlatFileItemReader<Provider> reader() {
@@ -92,10 +99,25 @@ public class ProviderAttestationConfig {
         return new ProviderAttestationProcessor();
     }
     
+//    @Bean
+//    public ConsoleItemWriter<Provider> writer() {
+//        return new ConsoleItemWriter<Provider>();
+//    }
+    
+
     @Bean
-    public ConsoleItemWriter<Provider> writer() {
-        return new ConsoleItemWriter<Provider>();
+    public JdbcBatchItemWriter<Provider> writer() {
+    	
+    	JdbcBatchItemWriter<Provider> itemWriter = new JdbcBatchItemWriter<>();
+
+		itemWriter.setDataSource(this.dataSource);
+		itemWriter.setSql(QUERY_INSERT_PROVIDER);
+		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
+		itemWriter.afterPropertiesSet();
+		
+        return itemWriter;
     }
+
 
     @Bean
     public Job readProviderDataJob() {
