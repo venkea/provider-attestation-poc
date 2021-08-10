@@ -29,6 +29,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.hcsc.provider.attestation.listener.StepSkipListener;
 import com.hcsc.provider.attestation.model.Provider;
 import com.hcsc.provider.attestation.processor.ProviderAttestationProcessor;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 public class ProviderAttestationConfig {
@@ -40,7 +41,7 @@ public class ProviderAttestationConfig {
 	public StepBuilderFactory stepBuilderFactory;
 	
 	@Autowired
-	public DataSource dataSource;
+	public HikariDataSource dataSource;
 	
 	@Autowired
 	public JobCompletionNotificationListner jobCompletionNotificationListner;
