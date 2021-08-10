@@ -34,7 +34,8 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 			} else {
 				com.hcsc.provider.drools.domain.Provider droolsProvider = new com.hcsc.provider.drools.domain.Provider();
 				BeanUtils.copyProperties(provider, droolsProvider);
-				StatelessProviderValidation.execute(droolsProvider);
+				droolsProvider = StatelessProviderValidation.execute(droolsProvider);
+				System.out.println("Drool Status" + droolsProvider.getStatus());
 			}
 		}
 		return true;
