@@ -6,9 +6,11 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.BeanUtils;
 
 import com.hcsc.provider.attestation.common.CommonConstants;
 import com.hcsc.provider.attestation.model.Provider;
+import com.hcsc.provider.drools.main.StatelessProviderValidation;
 
 public class ProviderAttestationProcessor implements ItemProcessor<Provider, Provider> {
 
@@ -29,6 +31,10 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 					checkInvalidAddress(provider.getAddressLine1()) ||
 					isInvalidZipcode(provider.getZipCode())) {
 				return false;
+			} else {
+				com.hcsc.provider.drools.domain.Provider droolsProvider = new com.hcsc.provider.drools.domain.Provider();
+				BeanUtils.copyProperties(provider, droolsProvider);
+				StatelessProviderValidation.execute(droolsProvider);
 			}
 		}
 		return true;

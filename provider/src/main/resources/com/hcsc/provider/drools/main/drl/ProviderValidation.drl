@@ -1,0 +1,61 @@
+package com.hcsc.provider.drools.main.drl
+ 
+import com.hcsc.provider.drools.domain.Provider;
+import com.hcsc.provider.drools.domain.Validation;
+
+
+rule "Valid providerTax"
+  dialect "mvel"
+  when
+	$provider: Provider( taxId.length() !=11, npi.length() != 10)
+  then
+    $provider.setStatus(Validation.FAILED);
+end
+
+rule "Valid provider speciality"
+  dialect "mvel"
+  when
+	$provider: Provider(Integer.parseInt(providerSpecialityCode) > 00 , Integer.parseInt(providerSpecialityCode)< 99, provType != "INDV")
+  then
+    $provider.setStatus(Validation.FAILED);
+end
+
+rule "Valid provider speciality code"
+    dialect "mvel"
+  when
+	$provider: Provider(Integer.parseInt(providerSpecialityCode) >99 , provType == "INDV")
+  then
+    $provider.setStatus(Validation.FAILED);
+end
+
+rule "Valid provider-speciality code"
+    dialect "mvel"
+  when
+	$provider: Provider(Integer.parseInt(providerSpecialityCode) ==00 , provType == "INDV")
+  then
+    $provider.setStatus(Validation.FAILED);
+end
+
+rule "prov-speciality code"
+    dialect "mvel"
+  when
+	$provider: Provider(providerSpecialityCode != "c5")
+  then
+    $provider.setStatus(Validation.FAILED);
+end
+
+rule "prov-speciality code2"
+    dialect "mvel"
+  when
+	$provider: Provider(providerSpecialityCode != "17")
+  then
+    $provider.setStatus(Validation.FAILED);
+end
+
+rule "Final Rule"
+    dialect "mvel"
+  when
+	$provider: Provider(status == Validation.UNKNOWN)
+  then
+    $provider.setStatus(Validation.PASSED);
+end
