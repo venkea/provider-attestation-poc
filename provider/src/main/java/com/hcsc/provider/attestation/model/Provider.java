@@ -56,6 +56,8 @@ public class Provider {
 
 	private String provEffectiveStatus;
 
+	private Validation status;
+
 	public Integer getProviderId() {
 		return providerId;
 	}
@@ -262,6 +264,14 @@ public class Provider {
 
 	public void setProvEffectiveStatus(String provEffectiveStatus) {
 		this.provEffectiveStatus = provEffectiveStatus;
+	}
+
+	public Validation getStatus() {
+		return status;
+	}
+
+	public void setStatus(Validation status) {
+		this.status = status;
 	}
 
 	@Override

@@ -3,6 +3,8 @@ package com.hcsc.provider.attestation.processor;
 import java.util.Date;
 import java.util.Objects;
 
+import com.hcsc.provider.attestation.drools.StatelessProviderValidation;
+import com.hcsc.provider.attestation.model.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -10,7 +12,6 @@ import org.springframework.beans.BeanUtils;
 
 import com.hcsc.provider.attestation.common.CommonConstants;
 import com.hcsc.provider.attestation.model.Provider;
-import com.hcsc.provider.drools.main.StatelessProviderValidation;
 
 public class ProviderAttestationProcessor implements ItemProcessor<Provider, Provider> {
 
@@ -32,17 +33,20 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 					isInvalidZipcode(provider.getZipCode())) {
 				return false;
 			} else {
-				com.hcsc.provider.drools.domain.Provider droolsProvider = new com.hcsc.provider.drools.domain.Provider();
-				BeanUtils.copyProperties(provider, droolsProvider);
-				droolsProvider = StatelessProviderValidation.execute(droolsProvider);
-				System.out.println("Drool Status" + droolsProvider.getStatus());
+				//Provider droolsProvider = new Provider();
+				//BeanUtils.copyProperties(provider, droolsProvider);
+				provider = StatelessProviderValidation.execute(provider);
+				System.out.println("Drool Status" + provider.getStatus());
+				if (provider.getStatus().equals(Validation.FAILED)){
+					return false;
+				}
 			}
 		}
 		return true;
 	}
 
 	private boolean isValidSsn(String ssn) throws IllegalArgumentException {
-		if (ssn.isBlank() || ssn.isEmpty() || ssn.equals("-")) {
+		if (ssn.isEmpty() || ssn.equals("-")) {
 			throw new IllegalArgumentException("has invalid SSN '" + ssn + "'");
 		}
 		return false;
@@ -56,14 +60,14 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 	}
 	
 	private boolean checkInvalidAddress(String address) throws IllegalArgumentException {
-		if (address.isBlank() || address.isEmpty() || address.equals("-")) {
+		if (address.isEmpty() || address.equals("-")) {
 			throw new IllegalArgumentException("Provider with address " + address + "has invalid data");
 		}
 		return false;
 	}
 
 	private boolean isInvalidZipcode(String zipcode) throws IllegalArgumentException {
-		if (zipcode.isBlank() || zipcode.isEmpty() || zipcode.equals("-")) {
+		if (zipcode.isEmpty() || zipcode.equals("-")) {
 			throw new IllegalArgumentException("Provider with zipcode " + zipcode + "has invalid data");
 		}
 		return false;
