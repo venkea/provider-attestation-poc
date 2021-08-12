@@ -36,7 +36,7 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 				//Provider droolsProvider = new Provider();
 				//BeanUtils.copyProperties(provider, droolsProvider);
 				provider = StatelessProviderValidation.execute(provider);
-				System.out.println("Drool Status" + provider.getStatus());
+				System.out.println("Drool Status " + provider.getStatus());
 				if (provider.getStatus().equals(Validation.FAILED)){
 					return false;
 				}

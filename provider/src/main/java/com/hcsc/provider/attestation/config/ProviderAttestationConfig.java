@@ -41,7 +41,7 @@ public class ProviderAttestationConfig {
 	public StepBuilderFactory stepBuilderFactory;
 	
 	@Autowired
-	public HikariDataSource dataSource;
+	public DataSource dataSource;
 	
 	@Autowired
 	public JobCompletionNotificationListner jobCompletionNotificationListner;

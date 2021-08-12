@@ -3,59 +3,38 @@ package com.hcsc.provider.attestation.drools.drl
 import com.hcsc.provider.attestation.model.Provider;
 import com.hcsc.provider.attestation.model.Validation;
 
-
-rule "Valid providerTax"
-  dialect "mvel"
-  when
-	$provider: Provider( taxId.length() !=11, npi.length() != 10)
-  then
-    $provider.setStatus(Validation.FAILED);
-end
-
-rule "Valid provider speciality"
-  dialect "mvel"
-  when
-	$provider: Provider(Integer.parseInt(providerSpecialityCode) > 00 , Integer.parseInt(providerSpecialityCode)< 99, provType != "INDV")
-  then
-    $provider.setStatus(Validation.FAILED);
-end
-
-rule "Valid provider speciality code"
+rule "Initial Rule"
     dialect "mvel"
   when
-	$provider: Provider(Integer.parseInt(providerSpecialityCode) >99 , provType == "INDV")
+   $provider: Provider(status == null)
   then
-    $provider.setStatus(Validation.FAILED);
+  	System.out.println("This provider null is CORRECT");
+    $provider.setStatus(Validation.UNKNOWN);
 end
 
-rule "Valid provider-speciality code"
-    dialect "mvel"
+rule "Valid provider"
+  dialect "mvel"
   when
-	$provider: Provider(Integer.parseInt(providerSpecialityCode) ==00 , provType == "INDV")
+   $provider : Provider( taxId.length() != 11, npi.length() != 10)
   then
-    $provider.setStatus(Validation.FAILED);
+   System.out.println("This Valid provide is FAILED");
+   $provider.setStatus(Validation.FAILED);
 end
-
 rule "prov-speciality code"
     dialect "mvel"
   when
-	$provider: Provider(providerSpecialityCode != "c5")
+   $provider: Provider(providerSpecialityCode != "C5")
   then
-    $provider.setStatus(Validation.FAILED);
-end
-
-rule "prov-speciality code2"
-    dialect "mvel"
-  when
-	$provider: Provider(providerSpecialityCode != "17")
-  then
+   System.out.println("This prov-speciality code is FAILED");
     $provider.setStatus(Validation.FAILED);
 end
 
 rule "Final Rule"
     dialect "mvel"
   when
-	$provider: Provider(status == Validation.UNKNOWN)
+   $provider: Provider(status == Validation.UNKNOWN)
   then
+  System.out.println("This Validation.UNKNOWN is FAILED");
     $provider.setStatus(Validation.PASSED);
 end
+
