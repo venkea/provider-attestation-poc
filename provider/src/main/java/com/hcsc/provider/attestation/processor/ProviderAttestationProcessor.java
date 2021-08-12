@@ -3,15 +3,14 @@ package com.hcsc.provider.attestation.processor;
 import java.util.Date;
 import java.util.Objects;
 
-import com.hcsc.provider.attestation.drools.StatelessProviderValidation;
-import com.hcsc.provider.attestation.model.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.BeanUtils;
 
 import com.hcsc.provider.attestation.common.CommonConstants;
+import com.hcsc.provider.attestation.drools.StatelessProviderValidation;
 import com.hcsc.provider.attestation.model.Provider;
+import com.hcsc.provider.attestation.model.Validation;
 
 public class ProviderAttestationProcessor implements ItemProcessor<Provider, Provider> {
 
@@ -36,8 +35,9 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 				//Provider droolsProvider = new Provider();
 				//BeanUtils.copyProperties(provider, droolsProvider);
 				provider = StatelessProviderValidation.execute(provider);
-				System.out.println("Drool Status " + provider.getStatus());
 				if (provider.getStatus().equals(Validation.FAILED)){
+					log.error("Provider with provider ID " + provider.getProviderId() + "is having : " +
+							provider.getErrorDescription());
 					return false;
 				}
 			}

@@ -156,7 +156,8 @@ public class ProviderAttestationConfig {
         return itemWriter;
     }
 
-    @Bean
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Bean
     public CompositeItemWriter compositeWriter() throws Exception {
         CompositeItemWriter compositeItemWriter = new CompositeItemWriter();
         List<ItemWriter> writers = new ArrayList<ItemWriter>();

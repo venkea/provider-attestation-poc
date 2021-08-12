@@ -58,6 +58,8 @@ public class Provider {
 
 	private Validation status;
 
+	private String errorDescription;
+
 	public Integer getProviderId() {
 		return providerId;
 	}
@@ -272,6 +274,14 @@ public class Provider {
 
 	public void setStatus(Validation status) {
 		this.status = status;
+	}
+
+	public String getErrorDescription() {
+		return errorDescription;
+	}
+
+	public void setErrorDescription(String errorDescription) {
+		this.errorDescription = errorDescription;
 	}
 
 	@Override
