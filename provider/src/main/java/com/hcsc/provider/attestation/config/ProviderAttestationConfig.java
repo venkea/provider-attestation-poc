@@ -1,5 +1,8 @@
 package com.hcsc.provider.attestation.config;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +32,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.hcsc.provider.attestation.listener.StepSkipListener;
 import com.hcsc.provider.attestation.model.Provider;
 import com.hcsc.provider.attestation.processor.ProviderAttestationProcessor;
-import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 public class ProviderAttestationConfig {
@@ -59,19 +61,31 @@ public class ProviderAttestationConfig {
             + ":addressType,:addressLine2,:city,:region,:phoneNumber,:emailId,:providerPracticeState,:product)";
 	
 	@Bean
-    public FlatFileItemReader<Provider> reader() {
+    public FlatFileItemReader<Provider> reader() throws IOException {
         FlatFileItemReader<Provider> itemReader = new FlatFileItemReader<Provider>();
+        itemReader.setResource(new ClassPathResource("data/Delimited_Source1.txt"));
         itemReader.setLineMapper(lineMapper());
         itemReader.setLinesToSkip(1);
-        itemReader.setResource(new ClassPathResource("data/Delimited_Source2.txt"));
         return itemReader;
     }
 
 	@Bean
-    public LineMapper<Provider> lineMapper() {
+    public LineMapper<Provider> lineMapper() throws IOException {
         DefaultLineMapper<Provider> lineMapper = new DefaultLineMapper<Provider>();
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
-        lineTokenizer.setDelimiter(";");
+        
+        String line = "";
+        BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/data/Delimited_Source1.txt"));
+        	while ((line = reader.readLine()) != null) {
+                // if pipe as separator
+                if (line.contains("|")) {
+                    lineTokenizer.setDelimiter("|");
+                // if semi-colon as separator
+                } else if (line.contains(";")) {
+                    lineTokenizer.setDelimiter(";");
+                }
+            }
+
         lineTokenizer.setNames(new String[] { "providerId", 
                 "providerFirstName",
                 "providerLastName",
