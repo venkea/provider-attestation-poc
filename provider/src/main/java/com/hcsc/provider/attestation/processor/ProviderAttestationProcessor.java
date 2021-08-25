@@ -34,7 +34,7 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 			} else {
 				//Provider droolsProvider = new Provider();
 				//BeanUtils.copyProperties(provider, droolsProvider);
-				provider = StatelessProviderValidation.execute(provider);
+				provider = StatelessProviderValidation.execute(provider); 
 				if (provider.getStatus().equals(Validation.FAILED)){
 					log.error("Provider with provider ID " + provider.getProviderId() + "is having : " +
 							provider.getErrorDescription());
