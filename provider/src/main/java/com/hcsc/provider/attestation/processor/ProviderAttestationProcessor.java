@@ -15,8 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.function.ServerRequest.Headers;
 
 import com.hcsc.provider.attestation.common.CommonConstants;
 import com.hcsc.provider.attestation.drools.StatelessProviderValidation;
@@ -54,26 +56,25 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 				//BeanUtils.copyProperties(provider, droolsProvider);
 				
 				// set headers
-				String plainCreds = "krisv:krisv";
+				String plainCreds = "User1:admin@123";
 				byte[] plainCredsBytes = plainCreds.getBytes();
 				byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
-				String base64Creds = new String(base64CredsBytes);
+				//String base64Creds = new String(base64CredsBytes);
 
 				HttpHeaders headers = new HttpHeaders();
 			//	encodedAuth = Base64.getEncoder().encodeToString(auth.toByteArray(Charset.forName("UTF-8")));
-				headers.add("Authorization", "Basic " + base64Creds);
-
-				HttpEntity<Jewellery> entity = new HttpEntity<Jewellery>(null, headers);
+				headers.add("Authorization", "Basic " + new String(base64CredsBytes));
+				headers.setContentType(MediaType.APPLICATION_JSON);
 				
-				Jewellery jewellery = new Jewellery("Goldie","Gold");
+				HttpEntity<Provider> entity = new HttpEntity<>(provider, headers);
 				 
-			    ResponseEntity<String> result = restTemplate.postForEntity(url, jewellery, String.class);
-//				ResponseEntity<String> loginResponse = restTemplate
-//						  .exchange(url, HttpMethod.GET, entity, String.class);
+			    //ResponseEntity<String> result = restTemplate.postForEntity(url, provider, String.class);
+				ResponseEntity<Provider> loginResponse = restTemplate
+						  .exchange(url, HttpMethod.POST, entity, Provider.class);
 				
 				//Verify request succeed
-				System.out.println("Status ::::: "+result.getStatusCodeValue());
-				System.out.println("Response::"+result.getBody());
+				System.out.println("Status ::::: "+loginResponse.getStatusCodeValue());
+				System.out.println("Response::"+loginResponse.getBody());
 				
 				
 				
