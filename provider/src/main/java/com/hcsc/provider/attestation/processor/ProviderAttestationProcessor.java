@@ -1,20 +1,38 @@
 package com.hcsc.provider.attestation.processor;
 
+
+
 import java.util.Date;
 import java.util.Objects;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.tomcat.util.digester.DocumentProperties.Charset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import com.hcsc.provider.attestation.common.CommonConstants;
 import com.hcsc.provider.attestation.drools.StatelessProviderValidation;
+import com.hcsc.provider.attestation.model.Jewellery;
 import com.hcsc.provider.attestation.model.Provider;
 import com.hcsc.provider.attestation.model.Validation;
 
 public class ProviderAttestationProcessor implements ItemProcessor<Provider, Provider> {
 
 	private static final Logger log = LoggerFactory.getLogger(ProviderAttestationProcessor.class);
+	
+	@Autowired
+	RestTemplate restTemplate;
+	
+	@Value("${url}")
+	String url;
 	
 	@Override
 	public Provider process(Provider provider) {
@@ -34,7 +52,32 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 			} else {
 				//Provider droolsProvider = new Provider();
 				//BeanUtils.copyProperties(provider, droolsProvider);
-				provider = StatelessProviderValidation.execute(provider); 
+				
+				// set headers
+				String plainCreds = "krisv:krisv";
+				byte[] plainCredsBytes = plainCreds.getBytes();
+				byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
+				String base64Creds = new String(base64CredsBytes);
+
+				HttpHeaders headers = new HttpHeaders();
+			//	encodedAuth = Base64.getEncoder().encodeToString(auth.toByteArray(Charset.forName("UTF-8")));
+				headers.add("Authorization", "Basic " + base64Creds);
+
+				HttpEntity<Jewellery> entity = new HttpEntity<Jewellery>(null, headers);
+				
+				Jewellery jewellery = new Jewellery("Goldie","Gold");
+				 
+			    ResponseEntity<String> result = restTemplate.postForEntity(url, jewellery, String.class);
+//				ResponseEntity<String> loginResponse = restTemplate
+//						  .exchange(url, HttpMethod.GET, entity, String.class);
+				
+				//Verify request succeed
+				System.out.println("Status ::::: "+result.getStatusCodeValue());
+				System.out.println("Response::"+result.getBody());
+				
+				
+				
+				//provider = StatelessProviderValidation.execute(provider); 
 				if (provider.getStatus().equals(Validation.FAILED)){
 					log.error("Provider with provider ID " + provider.getProviderId() + "is having : " +
 							provider.getErrorDescription());
