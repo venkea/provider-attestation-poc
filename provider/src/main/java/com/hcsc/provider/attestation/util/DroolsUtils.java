@@ -8,13 +8,13 @@ import java.util.regex.Pattern;
 
 
 public class DroolsUtils {
-	public static boolean ValidateDate(Date date) {
+	public static boolean ValidateDate(String date) {
         if (date != null) {
             SimpleDateFormat dfrmt = new SimpleDateFormat("MM/dd/yyyy");
             dfrmt.setLenient(false);
             try {
             	System.out.println("DATE STRING ----- " + date.toString());
-				dfrmt.parse(date.toString());
+				dfrmt.parse(date);
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}

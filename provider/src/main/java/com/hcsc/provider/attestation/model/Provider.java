@@ -44,7 +44,7 @@ public class Provider {
 
 	private String licenceNumber;
 
-	private Date licenseExpiryDate;
+	private String licenseExpiryDate;
 
 	private String providerPracticeState;
 
@@ -56,7 +56,7 @@ public class Provider {
 
 	private String provEffectiveStatus;
 
-	private Validation status;
+	private String status;
 
 	private String errorDescription;
 
@@ -220,11 +220,11 @@ public class Provider {
 		this.licenceNumber = licenceNumber;
 	}
 
-	public Date getLicenseExpiryDate() {
+	public String getLicenseExpiryDate() {
 		return licenseExpiryDate;
 	}
 
-	public void setLicenseExpiryDate(Date licenseExpiryDate) {
+	public void setLicenseExpiryDate(String licenseExpiryDate) {
 		this.licenseExpiryDate = licenseExpiryDate;
 	}
 
@@ -268,11 +268,11 @@ public class Provider {
 		this.provEffectiveStatus = provEffectiveStatus;
 	}
 
-	public Validation getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(Validation status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 

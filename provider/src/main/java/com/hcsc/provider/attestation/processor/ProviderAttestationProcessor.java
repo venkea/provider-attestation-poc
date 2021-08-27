@@ -2,29 +2,34 @@ package com.hcsc.provider.attestation.processor;
 
 
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.tomcat.util.digester.DocumentProperties.Charset;
+import org.kie.api.KieServices;
+import org.kie.api.command.BatchExecutionCommand;
+import org.kie.api.command.Command;
+import org.kie.api.command.KieCommands;
+import org.kie.api.runtime.ExecutionResults;
+import org.kie.internal.command.CommandFactory;
+import org.kie.server.api.marshalling.MarshallingFormat;
+import org.kie.server.api.model.ServiceResponse;
+import org.kie.server.client.KieServicesConfiguration;
+import org.kie.server.client.KieServicesFactory;
+import org.kie.server.client.RuleServicesClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.function.ServerRequest.Headers;
 
 import com.hcsc.provider.attestation.common.CommonConstants;
-import com.hcsc.provider.attestation.drools.StatelessProviderValidation;
-import com.hcsc.provider.attestation.model.Jewellery;
 import com.hcsc.provider.attestation.model.Provider;
-import com.hcsc.provider.attestation.model.Validation;
+import com.hcsc.provider.attestation.util.DroolsUtils;
 
 public class ProviderAttestationProcessor implements ItemProcessor<Provider, Provider> {
 
@@ -35,6 +40,18 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 	
 	@Value("${url}")
 	String url;
+
+	@Value("${user}")
+	String user;
+
+	@Value("${password}")
+	String password;
+
+	private static final MarshallingFormat FORMAT = MarshallingFormat.JSON;
+	
+	private static String CONTAINER_ID = "attestation.model_1.0.0";
+	
+	private static String CLASS_NAME = "Provider";
 	
 	@Override
 	public Provider process(Provider provider) {
@@ -56,32 +73,47 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 				//BeanUtils.copyProperties(provider, droolsProvider);
 				
 				// set headers
-				String plainCreds = "User1:admin@123";
-				byte[] plainCredsBytes = plainCreds.getBytes();
-				byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
-				//String base64Creds = new String(base64CredsBytes);
-
-				HttpHeaders headers = new HttpHeaders();
-			//	encodedAuth = Base64.getEncoder().encodeToString(auth.toByteArray(Charset.forName("UTF-8")));
-				headers.add("Authorization", "Basic " + new String(base64CredsBytes));
-				headers.setContentType(MediaType.APPLICATION_JSON);
+//				String plainCreds = "User1:admin@123";
+//				byte[] plainCredsBytes = plainCreds.getBytes();
+//				byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
+//				//String base64Creds = new String(base64CredsBytes);
+//
+//				HttpHeaders headers = new HttpHeaders();
+//			//	encodedAuth = Base64.getEncoder().encodeToString(auth.toByteArray(Charset.forName("UTF-8")));
+//				headers.add("Authorization", "Basic " + new String(base64CredsBytes));
+//				headers.setContentType(MediaType.APPLICATION_JSON);
+//				
+//				HttpEntity<Provider> entity = new HttpEntity<>(provider, headers);
+//				 
+//			    //ResponseEntity<String> result = restTemplate.postForEntity(url, provider, String.class);
+//				ResponseEntity<Provider> loginResponse = restTemplate
+//						  .exchange(url, HttpMethod.POST, entity, Provider.class);
+//				
+//				//Verify request succeed
+//				System.out.println("Status ::::: "+loginResponse.getStatusCodeValue());
+//				System.out.println("Response::"+loginResponse.getBody());
 				
-				HttpEntity<Provider> entity = new HttpEntity<>(provider, headers);
-				 
-			    //ResponseEntity<String> result = restTemplate.postForEntity(url, provider, String.class);
-				ResponseEntity<Provider> loginResponse = restTemplate
-						  .exchange(url, HttpMethod.POST, entity, Provider.class);
+				KieServicesConfiguration kieConfig = KieServicesFactory.newRestConfiguration(url, user, password);
+				kieConfig.setMarshallingFormat(FORMAT);
 				
-				//Verify request succeed
-				System.out.println("Status ::::: "+loginResponse.getStatusCodeValue());
-				System.out.println("Response::"+loginResponse.getBody());
+				RuleServicesClient kieClient = KieServicesFactory.newKieServicesClient(kieConfig)
+						.getServicesClient(RuleServicesClient.class);
+				List<Command<?>> cmds = new ArrayList<>();
+				KieCommands kieCommands = KieServices.Factory.get().getCommands();
 				
+				cmds.add(kieCommands.newInsert(provider, CLASS_NAME));
+				cmds.add(kieCommands.newFireAllRules());
 				
+				BatchExecutionCommand batchCommand = CommandFactory.newBatchExecution(cmds);
+				ServiceResponse<ExecutionResults> response = kieClient.executeCommandsWithResults(
+						CONTAINER_ID, batchCommand);
+				
+				Provider updatedProvider = (Provider) response.getResult().getValue(CLASS_NAME);
 				
 				//provider = StatelessProviderValidation.execute(provider); 
-				if (provider.getStatus().equals(Validation.FAILED)){
+				if (updatedProvider.getStatus().equals("FAILED")) {
 					log.error("Provider with provider ID " + provider.getProviderId() + "is having : " +
-							provider.getErrorDescription());
+							updatedProvider.getErrorDescription());
 					return false;
 				}
 			}
@@ -96,10 +128,18 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 		return false;
 	}
 
-	private boolean isLicenseExpired(Date license) throws IllegalArgumentException {
-		if (license.before(new Date())) {
-			throw new IllegalArgumentException("Provider with license" + license.getTime() + "has invalid data");
-		}
+	private boolean isLicenseExpired(String license) throws IllegalArgumentException {
+		Date licenseDate;
+		try {
+			licenseDate = new SimpleDateFormat("mm/dd/yyyy").parse(license);
+			if (licenseDate.before(new Date())) {
+				throw new IllegalArgumentException("Provider with license" + licenseDate.getTime() + "has invalid data");
+			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
+		
 		return false;
 	}
 	

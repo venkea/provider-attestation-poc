@@ -52,7 +52,7 @@ public class ProviderAttestationConfig {
             "INTO provider(provider_id,provider_type, provider_first_name, provider_last_name,tax_id,"
             + "npi,ssn,licence_expiry_date,address_line_1,state,zip_code,provider_specialty_code) " +
             "VALUES (:providerId,:provType, :providerFirstName, :providerLastName,:taxId,"
-            + ":npi,:ssn,:licenseExpiryDate,:addressLine1,:state,:zipCode,:providerSpecialityCode)";
+            + ":npi,:ssn,STR_TO_DATE(:licenseExpiryDate, '%d/%m/%Y'),:addressLine1,:state,:zipCode,:providerSpecialityCode)";
 	
 	private static final String QUERY_INSERT_PROVIDER_DETAILS = "INSERT INTO provider_detail"
 			+ "(provider_id,dea_id, ein, licence_state,licence_number,"
