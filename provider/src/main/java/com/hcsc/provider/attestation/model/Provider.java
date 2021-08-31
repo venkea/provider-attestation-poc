@@ -59,6 +59,46 @@ public class Provider {
 	private String status;
 
 	private String errorDescription;
+	
+	private String networkRequested;
+	
+	private String siteId;
+	
+	private String compCode;
+	
+	private String serviceCounty;
+
+	public String getNetworkRequested() {
+		return networkRequested;
+	}
+
+	public void setNetworkRequested(String networkRequested) {
+		this.networkRequested = networkRequested;
+	}
+
+	public String getSiteId() {
+		return siteId;
+	}
+
+	public void setSiteId(String siteId) {
+		this.siteId = siteId;
+	}
+
+	public String getCompCode() {
+		return compCode;
+	}
+
+	public void setCompCode(String compCode) {
+		this.compCode = compCode;
+	}
+
+	public String getServiceCounty() {
+		return serviceCounty;
+	}
+
+	public void setServiceCounty(String serviceCounty) {
+		this.serviceCounty = serviceCounty;
+	}
 
 	public Integer getProviderId() {
 		return providerId;
