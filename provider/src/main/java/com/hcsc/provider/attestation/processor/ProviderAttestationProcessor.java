@@ -2,6 +2,7 @@ package com.hcsc.provider.attestation.processor;
 
 
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,11 +26,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.provider.HibernateUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.hcsc.provider.attestation.common.CommonConstants;
+import com.hcsc.provider.attestation.dao.AttestationDao;
+import com.hcsc.provider.attestation.dao.ProviderLogsDao;
 import com.hcsc.provider.attestation.model.Provider;
-import com.hcsc.provider.attestation.util.DroolsUtils;
+import com.hcsc.provider.attestation.model.ProviderLogs;
 
 public class ProviderAttestationProcessor implements ItemProcessor<Provider, Provider> {
 
@@ -37,6 +41,12 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 	
 	@Autowired
 	RestTemplate restTemplate;
+	
+	@Autowired
+	AttestationDao attestationDao;
+	
+	@Autowired
+	ProviderLogsDao providerLogsDao ;
 	
 	@Value("${url}")
 	String url;
@@ -49,7 +59,7 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 
 	private static final MarshallingFormat FORMAT = MarshallingFormat.JSON;
 	
-	private static String CONTAINER_ID = "attestation.model_1.0.0";
+	private static String CONTAINER_ID = "attestation.model_1.0.0-SNAPSHOT";
 	
 	private static String CLASS_NAME = "Provider";
 	
@@ -114,7 +124,23 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 				if (updatedProvider.getStatus().equals("FAILED")) {
 					log.error("Provider with provider ID " + provider.getProviderId() + "is having : " +
 							updatedProvider.getErrorDescription());
-					return false;
+					
+				//Error logs logic
+				//Persisting into provider_logs table
+				BigInteger jobExecutionId=attestationDao.getJobExecutionId();
+				System.out.println("===============jobExecutionId================"+attestationDao.getJobExecutionId());
+				ProviderLogs providerLogs=new ProviderLogs();
+			//	providerLogs.setId(101);
+				providerLogs.setProviderId(updatedProvider.getProviderId());
+				providerLogs.setJobExecutionId(jobExecutionId);
+				providerLogs.setDescription(updatedProvider.getErrorDescription());
+				System.out.println(providerLogs);
+
+				providerLogsDao.createOrUpdateProviderLogs(providerLogs);
+				System.out.println("================providerLogs============");
+				System.out.println("======================================");
+				//	System.out.println(providerLogss);
+				return false;
 				}
 			}
 		}
