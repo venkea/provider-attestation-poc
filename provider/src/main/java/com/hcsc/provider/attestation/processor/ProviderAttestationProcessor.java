@@ -102,14 +102,14 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 				
 				updatedProvider = (Provider) response.getResult().getValue(CLASS_NAME);
 				//provider = StatelessProviderValidation.execute(provider); 
-				if (updatedProvider.getStatus().equals("FAILED")) {
-					log.error("FAILED--- Provider with provider ID " + updatedProvider.getProviderId() + "is having : " +
-							updatedProvider.getErrorDescription());
-					//Invalid records written to csv
-					//Create writer instance
-					writeToFile(updatedProvider);
-					return false;
-				}
+//				if (updatedProvider.getStatus().equals("FAILED")) {
+//					log.error("FAILED--- Provider with provider ID " + updatedProvider.getProviderId() + "is having : " +
+//							updatedProvider.getErrorDescription());
+//					//Invalid records written to csv
+//					//Create writer instance
+//					writeToFile(updatedProvider);
+//					return true;
+//				}
 			}
 		}
 		return true;

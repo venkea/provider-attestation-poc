@@ -1,5 +1,7 @@
 package com.hcsc.provider.attestation.config;
 
+import java.math.BigInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -8,6 +10,8 @@ import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+
+import com.hcsc.provider.attestation.common.CommonConstants;
 
 
 
@@ -19,6 +23,7 @@ public class JobCompletionNotificationListner implements JobExecutionListener {
 
   @Override
 	public void beforeJob(JobExecution jobExecution) {
+	  CommonConstants.jobExecutionId = BigInteger.valueOf(jobExecution.getId());
 	    System.out.println("--->Executing job id " + jobExecution.getId());
 	}
  
