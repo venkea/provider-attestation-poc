@@ -33,7 +33,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.hcsc.provider.attestation.common.CommonConstants;
 import com.hcsc.provider.attestation.dao.AttestationDao;
-import com.hcsc.provider.attestation.dao.ProviderLogsDao;
+import com.hcsc.provider.attestation.dao.IProviderLogsDao;
 import com.hcsc.provider.attestation.model.Provider;
 import com.hcsc.provider.attestation.model.ProviderLogs;
 import com.opencsv.CSVWriter;
@@ -56,13 +56,13 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 
 	private static final MarshallingFormat FORMAT = MarshallingFormat.JSON;
 	
-	private static String CONTAINER_ID = "attestation.model_1.0.0";
+	private static String CONTAINER_ID = "attestation.model_1.0.0-SNAPSHOT";
 	
 	private static String CLASS_NAME = "Provider";
 	
 	Provider updatedProvider = null;
 	
-	File file = new File("C:\\Users\\venkea\\Documents\\HCSC\\Roster\\Reports\\provider_");
+	File file = new File("C:\\Users\\rmadhwal\\Desktop\\venketesh_hcsc_code\\Reports");
 	
 	public static String QUERY_INSERT_PROVIDER;
 	
@@ -72,7 +72,7 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 	AttestationDao attestationDao;
 
 	@Autowired
-	ProviderLogsDao providerLogsDao ;
+	IProviderLogsDao providerLogsDao ;
 	
 	@Override
 	public Provider process(Provider provider) {
@@ -123,13 +123,14 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 				//	providerLogs.setId(101);
 					providerLogs.setProviderId(updatedProvider.getProviderId());
 					providerLogs.setJobExecutionId(jobExecutionId);
+					providerLogs.setDate(new Date());
 					providerLogs.setDescription(updatedProvider.getErrorDescription());
 					System.out.println(providerLogs);
 					
 					Integer saveId = providerLogsDao.createOrUpdateProviderLogs(providerLogs);
 					System.out.println("================providerLogs============" + saveId);
 					System.out.println("======================================");
-					writeToFile(updatedProvider);
+				//	writeToFile(updatedProvider);
 					return false;
 				}
 			}

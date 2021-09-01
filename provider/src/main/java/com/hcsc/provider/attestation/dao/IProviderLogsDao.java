@@ -1,10 +1,16 @@
 package com.hcsc.provider.attestation.dao;
 
+import java.util.Date;
+import java.util.List;
+
 import com.hcsc.provider.attestation.model.ProviderLogs;
 
-public interface ProviderLogsDao {
+public interface IProviderLogsDao {
 
 
 	public Integer createOrUpdateProviderLogs(ProviderLogs providerLogs);
+	
+
+	public List<ProviderLogs> getProviderLogs(Date date);
 
 }

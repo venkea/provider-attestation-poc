@@ -53,14 +53,14 @@ public class ProviderAttestationConfig {
 
 	private static final String QUERY_INSERT_PROVIDER = "INSERT " +
             "INTO provider(provider_id,provider_type, provider_first_name, provider_last_name,tax_id,"
-            + "npi,ssn,licence_expiry_date,address_line_1,state,zip_code,provider_specialty_code,network_requested, site_id, comp_code, service_county ) " +
+            + "npi,ssn,licence_expiry_date,address_line_1,state,zip_code,provider_specialty_code,network_requested, site_id, comp_code, service_country ) " +
             "VALUES (:providerId,:provType, :providerFirstName, :providerLastName,:taxId,"
             + ":npi,:ssn,STR_TO_DATE(:licenseExpiryDate, '%d/%m/%Y'),:addressLine1,:state,:zipCode,:providerSpecialityCode,"
             + ":networkRequested, :siteId, :compCode, :serviceCounty)";
 	
 	private static final String QUERY_INSERT_PROVIDER_DETAILS = "INSERT INTO provider_detail"
 			+ "(provider_id,dea_id, ein, licence_state,licence_number,"
-            + "address_type,address_line_2,city,region,phone_number,email_id,provider_practice_state,product,network_requested, site_id, comp_code, service_county) " +
+            + "address_type,address_line_2,city,region,phone_number,email_id,provider_practice_state,product,network_requested, site_id, comp_code, service_country) " +
             "VALUES (:providerId,:deaId, :ein, :licenceState,:licenceNumber,"
             + ":addressType,:addressLine2,:city,:region,:phoneNumber,:emailId,:providerPracticeState,:product,"
             + ":networkRequested, :siteId, :compCode, :serviceCounty)";
