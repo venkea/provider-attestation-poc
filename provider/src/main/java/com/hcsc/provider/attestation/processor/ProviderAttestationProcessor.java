@@ -5,6 +5,7 @@ package com.hcsc.provider.attestation.processor;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,7 +32,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 
 import com.hcsc.provider.attestation.common.CommonConstants;
+import com.hcsc.provider.attestation.dao.AttestationDao;
+import com.hcsc.provider.attestation.dao.ProviderLogsDao;
 import com.hcsc.provider.attestation.model.Provider;
+import com.hcsc.provider.attestation.model.ProviderLogs;
 import com.opencsv.CSVWriter;
 
 public class ProviderAttestationProcessor implements ItemProcessor<Provider, Provider> {
@@ -63,6 +67,12 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 	public static String QUERY_INSERT_PROVIDER;
 	
 	public static String QUERY_INSERT_PROVIDER_DETAILS;
+	
+	@Autowired
+	AttestationDao attestationDao;
+
+	@Autowired
+	ProviderLogsDao providerLogsDao ;
 	
 	@Override
 	public Provider process(Provider provider) {
@@ -107,6 +117,18 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 							updatedProvider.getErrorDescription());
 					//Invalid records written to csv
 					//Create writer instance
+					BigInteger jobExecutionId=attestationDao.getJobExecutionId();
+					System.out.println("===============jobExecutionId================"+attestationDao.getJobExecutionId());
+					ProviderLogs providerLogs=new ProviderLogs();
+				//	providerLogs.setId(101);
+					providerLogs.setProviderId(updatedProvider.getProviderId());
+					providerLogs.setJobExecutionId(jobExecutionId);
+					providerLogs.setDescription(updatedProvider.getErrorDescription());
+					System.out.println(providerLogs);
+					
+					Integer saveId = providerLogsDao.createOrUpdateProviderLogs(providerLogs);
+					System.out.println("================providerLogs============" + saveId);
+					System.out.println("======================================");
 					writeToFile(updatedProvider);
 					return false;
 				}
