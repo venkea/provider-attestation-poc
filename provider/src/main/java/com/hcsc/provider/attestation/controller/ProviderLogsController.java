@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +24,10 @@ public class ProviderLogsController {
 	@Autowired
 	IProviderLogsService providerLogsService;
 
+	@CrossOrigin(origins = "*")
 	@GetMapping(value = "/{date}")
 	public ResponseEntity<List<ProviderLogs>> fetchAllProcesses(@PathVariable("date")@DateTimeFormat(pattern="yyyy-MM-dd") Date date) throws ParseException {
 		ResponseEntity<List<ProviderLogs>> responseEntity = null;		
-		System.out.println("Inside Controller DATE -------" + date);
 		List<ProviderLogs> logs = providerLogsService.listProviderLogs(date);
 		responseEntity = new ResponseEntity<List<ProviderLogs>>(logs, HttpStatus.OK);
 		return responseEntity;

@@ -23,9 +23,12 @@ public class ProviderLogsDaoImpl implements IProviderLogsDao{
 	@Override
 	public List<ProviderLogs> getProviderLogs(Date date) {
 		session = sessionFactory.openSession();
-		return session.createQuery("from ProviderLogs  where date=:date")
-				.setParameter("date", date)
-				.list();
+		List<ProviderLogs> providerLogList = session.createQuery("from ProviderLogs  where date=:date")
+		.setParameter("date", date)
+		.list();
+		session.clear();
+		session.close();
+		return providerLogList;
 	}
 
 }
