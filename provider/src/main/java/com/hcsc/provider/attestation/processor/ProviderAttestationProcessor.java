@@ -101,6 +101,7 @@ public class ProviderAttestationProcessor implements ItemProcessor<Provider, Pro
 						CONTAINER_ID, batchCommand);
 				
 				updatedProvider = (Provider) response.getResult().getValue(CLASS_NAME);
+				updatedProvider.setErrorDescription(updatedProvider.getErrorDescription().trim());
 				//provider = StatelessProviderValidation.execute(provider); 
 //				if (updatedProvider.getStatus().equals("FAILED")) {
 //					log.error("FAILED--- Provider with provider ID " + updatedProvider.getProviderId() + "is having : " +
